@@ -7,8 +7,14 @@ import time
 c2 = 'http://localhost:443'
 
 #initialiazation, this will set establish a Session ID
-url = c2 + '/'
-sid = urllib.request.urlopen(url).read().decode("utf-8")
+if(os.path.isfile("sid.log")):
+    sid = open("sid.log", "r").read()
+else:
+    url = c2 + '/'
+    sid = urllib.request.urlopen(url).read().decode("utf-8")
+    f = open("sid.log", "w")
+    f.write(sid)
+    f.close()
 
 # Command execution
 time.sleep(2)
