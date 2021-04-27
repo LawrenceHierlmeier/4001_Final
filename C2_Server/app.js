@@ -38,8 +38,8 @@ app.get('/reconnect', (req, res) => {
 app.get('/info', (req, res) => {
     if(req.query.info != null){
 		var sid = req.query.sid;
-        var InfoText = req.query.info;
-        console.log(`${sid}: ${InfoText}`)
+    var InfoText = req.query.info;
+    console.log(`${sid}: ${InfoText}`)
 		fs.appendFile(`Sessions/${sid}/${sid}.log`, `${InfoText}\n`, err => {
 		  	if (err) console.error(err)
 		})
