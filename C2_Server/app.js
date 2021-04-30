@@ -1,5 +1,6 @@
 const express = require('express')
 const fs = require('fs')
+const path = require('path')
 const hostname = '0.0.0.0';
 const port = 63412;
 var session = require('express-session');
@@ -27,6 +28,21 @@ app.get('/', (req, res) => {
   		if (err) console.error(err)
 	})
 	res.send(`${sid}`);
+});
+
+app.get('/publicKey', function(req, res){
+    var options = {
+        root: path.join(__dirname)
+    };
+
+    var fileName = 'public_key.txt';
+    res.sendFile(fileName, options, function (err) {
+        if (err) {
+            console.error(err);
+        } else {
+            console.log('Sent:', fileName);
+        }
+    });
 });
 
 app.get('/reconnect', (req, res) => {

